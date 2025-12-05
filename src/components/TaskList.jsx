@@ -7,7 +7,7 @@ export default function TaskList({ tasks, title, onToggle, onDelete, onEdit, isE
       <section className="task-section">
         <h2 className="section-title">{title}</h2>
         <div className="empty-state">
-          <p>Aucune tâche pour le moment</p>
+          <p>Aucune tache pour le moment</p>
         </div>
       </section>
     );
