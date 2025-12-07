@@ -8,37 +8,53 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name:  Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name:  Setup Node.js
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
-      - name:  Install dependencies
+
+      - name: Install dependencies
         run: npm install
-      
-      - name:  Build project
+
+      - name: Build project
         run: npm run build
-      
-      - name:  Deploy to Load Balancer
-        uses: appleboy/ssh-action@master
+
+      - name: Check SSH_PRIVATE_KEY secret
+        run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "Error: SSH_PRIVATE_KEY secret is not set. Add it in repository settings -> Secrets -> Actions.";
+            exit 1;
+          fi
+
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.8.1
         with:
-          host: 65.21.248.214
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 65.21.248.214 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Load Balancer via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=yes root@65.21.248.214 << 'EOF'
+            set -e
             cd /var/www/to-do-list/to-do-list
-            git pull origin main
-            npm install
+            git fetch origin main
+            git reset --hard origin/main
+            npm ci --production
             npm run build
             systemctl reload nginx
-            echo " Load Balancer deployed successfully"
-      
-      - name:  Deployment completed
+            echo "Load Balancer deployed successfully"
+          EOF
+
+      - name: Deployment completed
         run: |
-          echo " Deployment successful!"
-          echo " Site: https://divane.ovh"
+          echo "Deployment successful!"
+          echo "Site: https://divane.ovh"
