@@ -1,0 +1,58 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  # Changez en 'master' si c'est votre branche
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name:  Checkout code
+        uses: actions/checkout@v4
+      
+      - name:  Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name:  Install dependencies
+        run: npm install
+      
+      - name:  Build project
+        run: npm run build
+      
+      - name:  Deploy to front-0
+        uses: appleboy/ssh-action@master
+        with:
+          host: 77.42.29.130
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/to-do-list/to-do-list
+            git pull origin main
+            npm install
+            npm run build
+            systemctl reload nginx
+            echo " Front-0 deployed successfully"
+      
+      - name:  Deploy to front-1
+        uses: appleboy/ssh-action@master
+        with:
+          host: 157.90.175.107
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/to-do-list/to-do-list
+            git pull origin main
+            npm install
+            npm run build
+            systemctl reload nginx
+            echo " Front-1 deployed successfully"
+      
+      - name:  Deployment completed
+        run: |
+          echo " Deployment successful!"
+          echo " Site available at: https://divane.ovh"
