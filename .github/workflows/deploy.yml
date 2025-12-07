@@ -13,7 +13,7 @@ jobs:
       - name:  Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
+      - name:  Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -24,10 +24,10 @@ jobs:
       - name:  Build project
         run: npm run build
       
-      - name:  Deploy to front-0
+      - name:  Deploy to Load Balancer
         uses: appleboy/ssh-action@master
         with:
-          host: 77.42.29.130
+          host: 65.21.248.214
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
@@ -36,21 +36,7 @@ jobs:
             npm install
             npm run build
             systemctl reload nginx
-            echo " Front-0 deployed successfully"
-      
-      - name:  Deploy to front-1
-        uses: appleboy/ssh-action@master
-        with:
-          host: 157.90.175.107
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /var/www/to-do-list/to-do-list
-            git pull origin main
-            npm install
-            npm run build
-            systemctl reload nginx
-            echo " Front-1 deployed successfully"
+            echo " Load Balancer deployed successfully"
       
       - name:  Deployment completed
         run: |
