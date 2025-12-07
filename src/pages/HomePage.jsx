@@ -60,7 +60,7 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <header className="page-header">
-        <h1 className="page-title"> My To-Do List 2</h1>
+        <h1 className="page-title"> My To-Do List 02</h1>
       </header>
 
       <main className="page-content">
