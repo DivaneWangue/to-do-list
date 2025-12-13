@@ -31,10 +31,7 @@ jobs:
             exit 1;
           fi
 
-      - name: Start ssh-agent and add key
-        uses: webfactory/ssh-agent@v0.8.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
 
       - name: Add server to known_hosts
         run: |
