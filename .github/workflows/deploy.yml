@@ -25,6 +25,13 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Debug secrets (à supprimer après)
+        run: |
+          echo "SSH_USER = '${{ secrets.SSH_USER }}'"
+          echo "SSH_PRIVATE_KEY = présent ? ${{ secrets.SSH_PRIVATE_KEY != '' && 'oui' || 'non' }}"
+          echo "SSH_FRONT_0 = '${{ secrets.SSH_FRONT_0 }}'"
+          echo "SSH_FRONT_1 = '${{ secrets.SSH_FRONT_1 }}'"
+
       - name: Install rsync
         run:  sudo apt-get update && sudo apt-get install -y rsync
 
