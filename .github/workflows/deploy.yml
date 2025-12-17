@@ -36,8 +36,12 @@ jobs:
 
       - name: Deploy to front_0
         run: |
-          rsync -avz --delete out/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_FRONT_0 }}:/var/www/to-do-list/
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_FRONT_0 }}:/var/www/to-do-list/
 
-      - name: Deploy to front_0
+      - name: Deploy to front_1
         run: |
-          rsync -avz --delete out/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_FRONT_1 }}:/var/www/to-do-list/
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT || 22 }}" \
+            dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_FRONT_1 }}:/var/www/to-do-list/
