@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
@@ -24,34 +25,20 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Check SSH_PRIVATE_KEY secret
-        run: |
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "Error: SSH_PRIVATE_KEY secret is not set. Add it in repository settings -> Secrets -> Actions.";
-            exit 1;
-          fi
+      - name: Install rsync
+        run:  sudo apt-get update
+              sudo apt-get install -y rsync
 
-      
-
-      - name: Add server to known_hosts
+      - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H 65.21.248.214 >> ~/.ssh/known_hosts
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
 
-      - name: Deploy to Load Balancer via SSH
+      - name: Deploy to front_0
         run: |
-          ssh -o StrictHostKeyChecking=yes root@65.21.248.214 << 'EOF'
-            set -e
-            cd /var/www/to-do-list/to-do-list
-            git fetch origin main
-            git reset --hard origin/main
-            npm ci --production
-            npm run build
-            systemctl reload nginx
-            echo "Load Balancer deployed successfully"
-          EOF
+          rsync -avz --delete out/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_FRONT_0 }}:/var/www/to-do-list/
 
-      - name: Deployment completed
+      - name: Deploy to front_0
         run: |
-          echo "Deployment successful!"
-          echo "Site: https://divane.ovh"
+          rsync -avz --delete out/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_FRONT_1 }}:/var/www/to-do-list/
