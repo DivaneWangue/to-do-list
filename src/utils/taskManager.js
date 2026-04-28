@@ -2,11 +2,15 @@
 
 export const isTaskOverdue = (dueDate) => {
   if (!dueDate) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  return new Date(dueDate) < new Date();
+};
+
+export const isTaskNearlyDue = (dueDate) => {
+  if (!dueDate) return false;
+  const now = new Date();
   const dueDateObj = new Date(dueDate);
-  dueDateObj.setHours(0, 0, 0, 0);
-  return dueDateObj < today;
+  const diffMinutes = (dueDateObj - now) / 1000 / 60;
+  return diffMinutes >= 0 && diffMinutes <= 60;
 };
 
 export const sortTasks = (tasks) => {
@@ -37,18 +41,19 @@ export const sortTasks = (tasks) => {
 export const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return date.toLocaleString('fr-FR', {
+    dateStyle: 'long',
+    timeStyle: 'short',
   });
 };
 
-export const formatDateForInput = (dateString) => {
+export const formatDateTimeForInput = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 };

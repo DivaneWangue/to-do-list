@@ -1,11 +1,17 @@
-import { useState } from 'react';
-import { formatDateForInput } from '../utils/taskManager';
+import { useState, useEffect } from 'react';
+import { formatDateTimeForInput } from '../utils/taskManager';
 import './TaskForm.css';
 
 export default function TaskForm({ onAddTask, editingTask, onEditComplete }) {
-  const [description, setDescription] = useState(editingTask?.description || '');
-  const [dueDate, setDueDate] = useState(editingTask?.dueDate ? formatDateForInput(editingTask.dueDate) : '');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    setDescription(editingTask?.description || '');
+    setDueDate(editingTask?.dueDate ? formatDateTimeForInput(editingTask.dueDate) : '');
+    setError('');
+  }, [editingTask]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,17 +22,18 @@ export default function TaskForm({ onAddTask, editingTask, onEditComplete }) {
       return;
     }
 
+    const taskPayload = {
+      description: description.trim(),
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+    };
+
     if (editingTask) {
       onEditComplete({
         ...editingTask,
-        description: description.trim(),
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        ...taskPayload,
       });
     } else {
-      onAddTask({
-        description: description.trim(),
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-      });
+      onAddTask(taskPayload);
     }
 
     setDescription('');
@@ -48,9 +55,9 @@ export default function TaskForm({ onAddTask, editingTask, onEditComplete }) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="dueDate">Date butoir (optionnelle)</label>
+        <label htmlFor="dueDate">Date et heure d’échéance (optionnelle)</label>
         <input
-          type="date"
+          type="datetime-local"
           id="dueDate"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}

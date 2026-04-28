@@ -1,11 +1,12 @@
-import { isTaskOverdue } from '../utils/taskManager';
+import { isTaskOverdue, isTaskNearlyDue } from '../utils/taskManager';
 import './TaskItem.css';
 
 export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
   const isOverdue = isTaskOverdue(task.dueDate) && !task.completed;
+  const isNearlyDue = isTaskNearlyDue(task.dueDate) && !task.completed;
 
   return (
-    <div className={`task-item ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}>
+    <div className={`task-item ${task.completed ? 'completed' : ''} ${(isOverdue || isNearlyDue) ? 'due-soon' : ''}`}>
       <div className="task-content">
         <input
           type="checkbox"
@@ -18,13 +19,14 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
           {task.dueDate && (
             <div className="task-date-container">
               <span className="task-date">
-                📅 {new Date(task.dueDate).toLocaleDateString('fr-FR', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
+                ⏰ {new Date(task.dueDate).toLocaleString('fr-FR', {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
                 })}
               </span>
-              {isOverdue && <span className="alert-icon">⚠️</span>}
+              {(isOverdue || isNearlyDue) && (
+                <span className="alert-icon">{isOverdue ? '🚨' : '🔔'}</span>
+              )}
             </div>
           )}
         </div>

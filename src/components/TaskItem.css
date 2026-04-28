@@ -27,13 +27,13 @@
   color: #999;
 }
 
-.task-item.overdue {
+.task-item.due-soon {
   border-left-color: #dc3545;
   background-color: #fff5f5;
 }
 
-.task-item.overdue .task-description {
-  color: #dc3545;
+.task-item.due-soon .task-description {
+  color: #b91c1c;
   font-weight: 500;
 }
 
